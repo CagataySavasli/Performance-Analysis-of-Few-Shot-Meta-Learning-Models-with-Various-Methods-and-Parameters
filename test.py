@@ -11,7 +11,7 @@ from methods.feature_transfer_regression import FeatureTransfer
 import backbone
 import numpy as np
 
-def main(method, dataset, model, seed=1, n_test_epochs=10, n_support=5):
+def main(method, dataset, model, kernel_type, seed=1, n_test_epochs=10, n_support=5):
         
     np.random.seed(seed)
     torch.manual_seed(seed)
@@ -31,11 +31,11 @@ def main(method, dataset, model, seed=1, n_test_epochs=10, n_support=5):
     bb           = backbone.Conv3().cuda()
 
     if method=='DKT':
-        model = DKT(bb,dataset).cuda()
+        model = DKT(bb,dataset,kernel_type).cuda()
         optimizer = None
     if method=='gpnet':
         bb = backbone.Conv3()
-        model = GPNet(bb,dataset)
+        model = GPNet(bb,dataset,kernel_type)
         optimizer = None
     elif method=='transfer':
         model = FeatureTransfer(bb, dataset).cuda()

@@ -12,7 +12,7 @@ import backbone
 import os
 import numpy as np
 
-def main(method, dataset, model, stop_epoch=100, seed=1):
+def main(method, dataset, model, kernel_type, stop_epoch=100, seed=1):
     print(f"""
     method : {method}
     model : {model}
@@ -35,10 +35,10 @@ def main(method, dataset, model, stop_epoch=100, seed=1):
     bb           = backbone.Conv3().cuda()
 
     if  method=='DKT':
-        model = DKT(bb,dataset).cuda()
+        model = DKT(bb,dataset,kernel_type).cuda()
     elif  method=='gpnet':
         bb = backbone.Conv3()
-        model = GPNet(bb, dataset)
+        model = GPNet(bb, dataset,kernel_type)
     elif  method=='transfer':
         model = FeatureTransfer(bb, dataset).cuda()
     else:

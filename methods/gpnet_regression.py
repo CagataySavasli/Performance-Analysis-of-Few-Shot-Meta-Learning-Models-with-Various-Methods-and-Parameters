@@ -12,14 +12,14 @@ import gpytorch
 from time import gmtime, strftime
 import random
 from statistics import mean
-from configs import kernel_type
 
 class GPNet(nn.Module):
-    def __init__(self, backbone, dataset):
+    def __init__(self, backbone, dataset, kernel_type):
         super(GPNet, self).__init__()
         ## GP parameters
         self.feature_extractor = backbone
         self.dataset = dataset
+        self.kernel_type = kernel_type
         self.get_model_likelihood_mll() #Init model, likelihood, and mll
 
 
@@ -33,7 +33,7 @@ class GPNet(nn.Module):
             if(train_y is None): train_y=torch.ones(19)
 
         likelihood = gpytorch.likelihoods.GaussianLikelihood()
-        model = ExactGPLayer(train_x=train_x, train_y=train_y, likelihood=likelihood, kernel=kernel_type)
+        model = ExactGPLayer(train_x=train_x, train_y=train_y, likelihood=likelihood, kernel=self.kernel_type)
 
         self.model      = model
         self.likelihood = likelihood
@@ -80,49 +80,18 @@ class GPNet(nn.Module):
     def test_loop(self, n_support, optimizer=None): # no optimizer needed for GP
         if self.dataset == "AAF":
             from data.AAF_loader import get_batch, train_people, test_people, normalize_age, invert_normalize_age
-        elif self.dataset == "QMUL":
-            from data.qmul_loader import get_batch, train_people, test_people
-        inputs, targets = get_batch(test_people)
-        
-        if self.dataset == "AAF":    
             inputs, targets = get_batch(test_people)
 
             # TODO: modify output shape here!
             support_ind = list(np.random.choice(list(range(1)), replace=True, size=n_support))
             query_ind   = [i for i in range(1) if i not in support_ind]
 
-            x_all = inputs
-            y_all = targets
-
-            x_support = inputs[:,support_ind,:,:,:]
-            y_support = targets[:,support_ind]
-            x_query   = inputs[:,query_ind,:,:,:]
-            y_query   = targets[:,query_ind]
-
-            # choose a random test person
-            n = np.random.randint(0, len(test_people)-1)
-
-            z_support = self.feature_extractor(x_support[n]).detach()
-            self.model.set_train_data(inputs=z_support, targets=y_support[n], strict=False)
-
-            self.model.eval()
-            self.feature_extractor.eval()
-            self.likelihood.eval()
-
-            with torch.no_grad():
-                z_query = self.feature_extractor(x_all[n]).detach()
-                pred    = self.likelihood(self.model(z_query))
-                lower, upper = pred.confidence_region() #2 standard deviations above and below the mean
-
-            mse = self.mse(pred.mean, y_all[n])
-
-            return mse
-
         elif self.dataset == "QMUL":
+            from data.qmul_loader import get_batch, train_people, test_people
             inputs, targets = get_batch(test_people)
 
-        support_ind = list(np.random.choice(list(range(19)), replace=False, size=n_support))
-        query_ind   = [i for i in range(19) if i not in support_ind]
+            support_ind = list(np.random.choice(list(range(19)), replace=False, size=n_support))
+            query_ind   = [i for i in range(19) if i not in support_ind]
 
         x_all = inputs
         y_all = targets

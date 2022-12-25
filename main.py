@@ -1,31 +1,44 @@
 import train
 import test
 
-train.main("transfer","QMUL", "Conv3")
-transfer_qmul_result = test.main("transfer","QMUL", "Conv3")
+results = []
+kernels = []
+get_error = []
+for kernel_type in ["linear", "rbf", "matern", "poli1", "poli2", "cossim", "bncossim"]:
+    try:
+        print(f"_____-----{kernel_type}-----_____")   
 
-train.main("transfer","AAF", "Conv3")
-transfer_aaf_result = test.main("transfer","AAF", "Conv3")
+        train.main("gpnet","AAF", "Conv3", kernel_type)
+        gpnet_aaf_result = test.main("gpnet","AAF", "Conv3", kernel_type)
 
-train.main("gpnet","QMUL", "Conv3")
-gpnet_qmul_result = test.main("gpnet","QMUL", "Conv3")
+        train.main("gpnet","QMUL", "Conv3", kernel_type)
+        gpnet_qmul_result = test.main("gpnet","QMUL", "Conv3", kernel_type)
 
-train.main("gpnet","AAF", "Conv3")
-gpnet_aaf_result = test.main("gpnet","AAF", "Conv3")
+        train.main("DKT","AAF", "Conv3",kernel_type)
+        dkt_aaf_result = test.main("DKT","AAF", "Conv3",kernel_type)
 
-train.main("DKT","QMUL", "Conv3")
-dkt_qmul_result = test.main("DKT","QMUL", "Conv3")
+        train.main("DKT","QMUL", "Conv3",kernel_type)
+        dkt_qmul_result = test.main("DKT","QMUL", "Conv3",kernel_type)
 
-train.main("DKT","AAF", "Conv3")
-dkt_aaf_result = test.main("DKT","AAF", "Conv3")
+        kernels.append(kernel_type)
+        results.append([kernel_type, gpnet_aaf_result, gpnet_qmul_result, dkt_aaf_result, dkt_qmul_result])
 
-print(f"""
-******************************************************************************************************
-FeatureTransfer with QMUL dataset : {transfer_qmul_result}
-FeatureTransfer with AAF dataset : {transfer_aaf_result}
-GPNet with QMUL dataset : {gpnet_qmul_result}
-GPNet with AAF dataset : {gpnet_aaf_result}
-DKT with QMUL dataset : {dkt_qmul_result}
-DKT with AAF dataset : {dkt_aaf_result}
-******************************************************************************************************
-""")
+    except:
+        get_error.append(kernel_type)
+for result in results:
+    print(f"""
+    ******************************************************************************************************
+    GPNet with AAF dataset ( with {result[0]}) : {result[1]}
+    GPNet with QMUL dataset ( with {result[0]}) : {result[2]}
+
+    DKT with AAF dataset ( with {result[0]}) : {result[3]}
+    DKT with QMUL dataset ( with {result[0]}) : {result[4]}
+    ******************************************************************************************************
+    """)
+
+print("Selected kernels : ")
+print(kernels)
+print("******************************************************************************************************")
+print("Kernels with error :")
+print(get_error)
+print("******************************************************************************************************")
