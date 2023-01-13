@@ -12,6 +12,10 @@ import gpytorch
 from time import gmtime, strftime
 import random
 from statistics import mean
+from gpytorch.kernels import Kernel
+
+from torch import Tensor
+from methods.gencheb import gencheb
 
 class GPNet(nn.Module):
     def __init__(self, backbone, dataset, kernel_type):
@@ -113,6 +117,7 @@ class GPNet(nn.Module):
 
         with torch.no_grad():
             z_query = self.feature_extractor(x_all[n]).detach()
+            print(z_query)
             pred    = self.likelihood(self.model(z_query))
             lower, upper = pred.confidence_region() #2 standard deviations above and below the mean
 
@@ -156,6 +161,8 @@ class ExactGPLayer(gpytorch.models.ExactGP):
         ## Polynomial (p=2)
         elif(kernel=='poli2'):
             self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.PolynomialKernel(power=2))
+        elif(kernel=='gencheb'):
+            self.covar_module = gpytorch.kernels.ScaleKernel(gencheb())
         else:
             raise ValueError("[ERROR] the kernel '" + str(kernel) + "' is not supported!")
 

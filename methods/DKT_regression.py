@@ -12,6 +12,9 @@ import gpytorch
 from time import gmtime, strftime
 import random
 from statistics import mean
+from gpytorch.kernels import Kernel
+
+from methods.gencheb import gencheb
 
 class DKT(nn.Module):
     def __init__(self, backbone, dataset, kernel_type):
@@ -152,6 +155,9 @@ class ExactGPLayer(gpytorch.models.ExactGP):
         ## Polynomial (p=2)
         elif(kernel=='poli2'):
             self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.PolynomialKernel(power=2))
+        elif(kernel=='gencheb'):
+            print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+            self.covar_module =gpytorch.kernels.ScaleKernel(gencheb())
         else:
             raise ValueError("[ERROR] the kernel '" + str(kernel) + "' is not supported!")
 
