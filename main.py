@@ -1,7 +1,7 @@
 import train
 import test
 
-method = "DKT"
+method = "gpnet"
 dataset = "AAF" 
 model = "Conv3" 
 kernel_type = "rbf"

@@ -10,6 +10,8 @@ class gencheb(Kernel):
 
     
     def forward(self, x, y, active_dims=6,**params):
+        x_tmp = x.detach().numpy()
+        y_tmp = y.detach().numpy()
         x = torch.tensor(x, dtype=torch.float)
         y = torch.tensor(x, dtype=torch.float)
         n = active_dims
@@ -27,7 +29,7 @@ class gencheb(Kernel):
                     K = K + T1matrix[i, 0] * T2matrix[i, 0]
                 else:
                     K = K + np.dot(T1matrix[i, :], T2matrix[i, :])
-        #K = K / np.sqrt(m - np.dot(x, y))
+        #K = K / torch.sqrt(m - torch.dot(x.reshape(-1),y.reshape(-1)))
         return K
 
     def Tgenerate(self, x, ni, tmp):
