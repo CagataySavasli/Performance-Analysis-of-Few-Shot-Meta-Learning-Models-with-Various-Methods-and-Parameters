@@ -161,6 +161,14 @@ class ExactGPLayer(gpytorch.models.ExactGP):
         ## Polynomial (p=2)
         elif(kernel=='poli2'):
             self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.PolynomialKernel(power=2))
+## ADD NEW KERNELS :
+
+        #Cosine kernel
+        elif(kernel=='cosi'):
+            self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.CosineKernel())
+        ## Periodic kernel
+        elif(kernel=='preio'):
+            self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.PeriodicKernel())
         elif(kernel=='gencheb'):
             self.covar_module = gpytorch.kernels.ScaleKernel(gencheb())
         else:
