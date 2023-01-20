@@ -36,7 +36,7 @@ class DKT(nn.Module):
             if(train_y is None): train_y=torch.ones(1).cuda()
 
         likelihood = gpytorch.likelihoods.GaussianLikelihood()
-        model = ExactGPLayer(train_x=train_x, train_y=train_y, likelihood=likelihood, kernel=self.kernel_type)
+        model = ExactGPLayer(train_x=train_x, train_y=train_y, likelihood=likelihood, kernel=self.kernel_type, dataset = self.dataset)
 
         self.model      = model.cuda()
         self.likelihood = likelihood.cuda()
@@ -133,19 +133,16 @@ class DKT(nn.Module):
         self.feature_extractor.load_state_dict(ckpt['net'])
 
 class ExactGPLayer(gpytorch.models.ExactGP):
-    def __init__(self, train_x, train_y, likelihood, kernel='linear'):
+    def __init__(self, train_x, train_y, likelihood, kernel='linear', dataset = "QMUL"):
         super(ExactGPLayer, self).__init__(train_x, train_y, likelihood)
         self.mean_module  = gpytorch.means.ConstantMean()
-
+## Full
          ## Linear kernel
         if(kernel=='linear'):
             self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.LinearKernel())
         ## RBF kernel
         elif(kernel=='rbf' or kernel=='RBF'):
             self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.RBFKernel())
-        ## Spectral kernel
-        elif(kernel=='spectral'):
-            self.covar_module = gpytorch.kernels.SpectralMixtureKernel(num_mixtures=4, ard_num_dims=2916)
         ## Matern kernel
         elif(kernel=='matern'):
             self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.MaternKernel())
@@ -155,14 +152,37 @@ class ExactGPLayer(gpytorch.models.ExactGP):
         ## Polynomial (p=2)
         elif(kernel=='poli2'):
             self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.PolynomialKernel(power=2))
-## ADD NEW KERNELS :
-
-        #Cosine kernel
-        elif(kernel=='cosi'):
-            self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.CosineKernel())
+        ## RQKernel 
+        elif(kernel=='rq'):
+            self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.RQKernel())
         ## Periodic kernel
         elif(kernel=='preio'):
             self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.PeriodicKernel())
+
+## Partial :
+        #Cosine kernel
+        elif(kernel=='cosi'):
+            self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.CosineKernel())
+        ## PiecewisePolynomial Kernel
+        elif(kernel=='piece'):
+            self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.PiecewisePolynomialKernel())
+
+
+## Try Again :
+        ## Spectral kernel
+        elif(kernel=='spectral'):
+            self.covar_module = gpytorch.kernels.SpectralMixtureKernel(num_mixtures=4, ard_num_dims=2916)
+        ## Cylindrical Kernel
+        elif(kernel=='cylin'):
+            self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.CylindricalKernel())
+        
+        ## SpectralDeltaKernel 
+        elif(kernel=='specdel'):
+            self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.SpectralDeltaKernel())
+        ## AdditiveKernel 
+        elif(kernel=='add'):
+            self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.AdditiveKernel())
+
         elif(kernel=='gencheb'):
             print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
             self.covar_module =gpytorch.kernels.ScaleKernel(gencheb())
