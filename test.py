@@ -39,7 +39,7 @@ def main(method, dataset, model, kernel_type, seed=1, n_test_epochs=10, n_suppor
         optimizer = None
     elif method=='transfer':
         model = FeatureTransfer(bb, dataset).cuda()
-        optimizer = optim.Adamax([{'params':model.parameters(),'lr':0.001}])
+        optimizer = optim.SGD([{'params':model.parameters(),'lr':0.001}])
     else:
         ValueError('Unrecognised method')
 

@@ -41,7 +41,7 @@ def main(method, dataset, model, kernel_type, stop_epoch=100, seed=1):
     else:
         ValueError('Unrecognised method')
 
-    optimizer = torch.optim.Adam([{'params': model.model.parameters(), 'lr': 0.001},
+    optimizer = torch.optim.SGD([{'params': model.model.parameters(), 'lr': 0.001},
                                 {'params': model.feature_extractor.parameters(), 'lr': 0.001}])
 
     for epoch in range( stop_epoch):

@@ -172,6 +172,11 @@ class ExactGPLayer(gpytorch.models.ExactGP):
         ## Spectral kernel
         elif(kernel=='spectral'):
             self.covar_module = gpytorch.kernels.SpectralMixtureKernel(num_mixtures=4, ard_num_dims=2916)
+                ## Spectral kernel
+        elif(kernel=='test'):
+            self.covar_module =  gpytorch.kernels.ScaleKernel(gpytorch.kernels.SpectralMixtureKernel(num_mixtures=4, ard_num_dims=2916))
+        elif(kernel=='test2'):
+            self.covar_module =  gpytorch.kernels.ScaleKernel(gpytorch.kernels.SpectralMixtureKernel(num_mixtures=4, ard_num_dims=2916))
         ## Cylindrical Kernel
         elif(kernel=='cylin'):
             self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.CylindricalKernel())

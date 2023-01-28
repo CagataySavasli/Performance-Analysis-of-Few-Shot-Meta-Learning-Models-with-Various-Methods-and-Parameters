@@ -9,7 +9,7 @@ class gencheb(Kernel):
 
 
     
-    def forward(self, x, y, active_dims=6,**params):
+    def forward(self, x, y, active_dims=3,**params):
         x_tmp = x.detach().numpy()
         y_tmp = y.detach().numpy()
         x = torch.tensor(x, dtype=torch.float)
